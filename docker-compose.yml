@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  ldrelay:
+    image: launchdarkly/ld-relay
+    environment:
+      - LD_ENV_BENCHMARK=${LD_SDK_KEY}
+      - LD_MOBILE_KEY_BENCHMARK=${LD_MOBILE_KEY}
+      - USE_EVENTS=true
+    ports:
+      - "8030:8039"
+
+  master:
+    image: locust-ld-relay
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - LD_SDK_KEY=${LD_SDK_KEY}
+      - LD_MOBILE_KEY=${LD_MOBILE_KEY}
+      - LD_PROJECT_KEY=${LD_PROJECT_KEY}
+      - LD_API_KEY=${LD_API_KEY}
+      - LOCUST_HOST=http://ldrelay:8030
+    depends_on:
+      - ldrelay
+    ports:
+      - "8089:8089"
